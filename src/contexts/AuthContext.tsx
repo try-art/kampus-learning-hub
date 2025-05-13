@@ -1,5 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { users as mockUsers } from '@/data/mockData';
 
 // Define user types
 export type UserRole = 'admin' | 'user';
@@ -10,6 +11,9 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string;
+  bio?: string;
+  website?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -23,24 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin',
-    avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff'
-  },
-  {
-    id: '2',
-    name: 'Regular User',
-    email: 'user@example.com',
-    role: 'user',
-    avatar: 'https://ui-avatars.com/api/?name=Regular+User&background=6366f1&color=fff'
-  }
-];
-
+// Using mock users from mockData instead of duplicating them
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Find user by email (in a real app, you'd verify password too)
-    const foundUser = MOCK_USERS.find(u => u.email === email);
+    const foundUser = mockUsers.find(u => u.email === email);
     
     if (!foundUser) {
       setIsLoading(false);
