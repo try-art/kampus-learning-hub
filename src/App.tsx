@@ -11,7 +11,14 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
 import MyCourses from "./pages/MyCourses";
+import Materials from "./pages/Materials";
+import MyMaterials from "./pages/MyMaterials";
+import UsersManagement from "./pages/UsersManagement";
+import Calendar from "./pages/Calendar";
+import MyCalendar from "./pages/MyCalendar";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,18 +47,19 @@ const App = () => (
             
             {/* Admin routes */}
             <Route path="/courses" element={<Courses />} />
-            <Route path="/courses/:id" element={<div>Course Details (Admin)</div>} />
+            <Route path="/courses/:id" element={<CourseDetails />} />
             <Route path="/courses/new" element={<div>Create Course</div>} />
-            <Route path="/users" element={<div>Users Management</div>} />
-            <Route path="/materials" element={<div>Materials Management</div>} />
-            <Route path="/calendar" element={<div>Admin Calendar</div>} />
-            <Route path="/settings" element={<div>Settings</div>} />
+            <Route path="/users" element={<UsersManagement />} />
+            <Route path="/materials" element={<Materials />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/settings" element={<Settings />} />
             
             {/* User routes */}
             <Route path="/my-courses" element={<MyCourses />} />
-            <Route path="/my-courses/:id" element={<div>Course Details (User)</div>} />
-            <Route path="/my-materials" element={<div>My Materials</div>} />
-            <Route path="/my-calendar" element={<div>User Calendar</div>} />
+            <Route path="/my-courses/:id" element={<CourseDetails />} />
+            <Route path="/my-materials" element={<MyMaterials />} />
+            <Route path="/my-calendar" element={<MyCalendar />} />
+            <Route path="/settings" element={<Settings />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
