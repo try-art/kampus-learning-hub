@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Layout from '@/components/Layout';
-import { courses, modules, lessons, enrollments } from '@/data/mockData';
+import { courses, getModulesByCourseId, getLessonsByModuleId, enrollments } from '@/data/mockData';
 import { Calendar, Clock, Users, BookOpen, FileText, Video, Award, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +18,7 @@ const CourseDetails = () => {
   const course = courses.find(c => c.id === id);
   
   // Find course modules
-  const courseModules = modules.filter(m => m.courseId === id);
+  const courseModules = course ? getModulesByCourseId(id || '') : [];
   
   // Find user enrollment for this course
   const userEnrollment = enrollments.find(e => e.courseId === id && e.userId === user?.id);
@@ -129,18 +129,18 @@ const CourseDetails = () => {
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full overflow-hidden">
                   <img 
-                    src={course.instructor?.avatar || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7"} 
-                    alt={course.instructor?.name} 
+                    src={course.instructor.avatar || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7"} 
+                    alt={course.instructor.name} 
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <div>
-                  <h3 className="font-medium">{course.instructor?.name || "Profesor"}</h3>
-                  <p className="text-muted-foreground text-sm">{course.instructor?.title || "Instructor"}</p>
+                  <h3 className="font-medium">{course.instructor.name || "Profesor"}</h3>
+                  <p className="text-muted-foreground text-sm">{course.instructor.title || "Instructor"}</p>
                 </div>
               </div>
               <p className="mt-4 text-muted-foreground">
-                {course.instructor?.bio || "Información del instructor no disponible."}
+                {course.instructor.bio || "Información del instructor no disponible."}
               </p>
             </div>
           </TabsContent>
@@ -150,39 +150,43 @@ const CourseDetails = () => {
             <div className="bg-card rounded-lg shadow-elegant p-6">
               <div className="flex flex-col gap-4">
                 {courseModules.length > 0 ? (
-                  courseModules.map((module, index) => (
-                    <div key={module.id} className="border rounded-lg overflow-hidden">
-                      <div className="bg-muted p-4 flex items-center justify-between">
-                        <h3 className="font-medium">Módulo {index + 1}: {module.title}</h3>
-                        <span className="text-sm text-muted-foreground">{module.duration}</span>
-                      </div>
-                      <div className="divide-y">
-                        {lessons.filter(l => l.moduleId === module.id).map(lesson => (
-                          <div key={lesson.id} className="p-4 flex items-center gap-4 hover:bg-muted/50">
-                            {lesson.type === 'video' ? (
-                              <Video size={20} className="text-blue-500" />
-                            ) : (
-                              <FileText size={20} className="text-green-500" />
-                            )}
-                            <div className="flex-1">
-                              <div>{lesson.title}</div>
-                              <div className="text-sm text-muted-foreground">{lesson.duration}</div>
-                            </div>
-                            {isAdmin() && (
-                              <Button variant="ghost" size="sm">Editar</Button>
-                            )}
-                            {!isAdmin() && userEnrollment && (
-                              lesson.completed ? (
-                                <CheckCircle size={20} className="text-green-500" />
+                  courseModules.map((module, index) => {
+                    const moduleLessons = getLessonsByModuleId(module.id);
+                    
+                    return (
+                      <div key={module.id} className="border rounded-lg overflow-hidden">
+                        <div className="bg-muted p-4 flex items-center justify-between">
+                          <h3 className="font-medium">Módulo {index + 1}: {module.title}</h3>
+                          <span className="text-sm text-muted-foreground">{module.duration}</span>
+                        </div>
+                        <div className="divide-y">
+                          {moduleLessons.map(lesson => (
+                            <div key={lesson.id} className="p-4 flex items-center gap-4 hover:bg-muted/50">
+                              {lesson.type === 'video' ? (
+                                <Video size={20} className="text-blue-500" />
                               ) : (
-                                <Button variant="outline" size="sm">Ver</Button>
-                              )
-                            )}
-                          </div>
-                        ))}
+                                <FileText size={20} className="text-green-500" />
+                              )}
+                              <div className="flex-1">
+                                <div>{lesson.title}</div>
+                                <div className="text-sm text-muted-foreground">{lesson.duration || 'Sin duración'}</div>
+                              </div>
+                              {isAdmin() && (
+                                <Button variant="ghost" size="sm">Editar</Button>
+                              )}
+                              {!isAdmin() && userEnrollment && (
+                                lesson.completed ? (
+                                  <CheckCircle size={20} className="text-green-500" />
+                                ) : (
+                                  <Button variant="outline" size="sm">Ver</Button>
+                                )
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">No hay contenido disponible para este curso.</p>
