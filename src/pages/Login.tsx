@@ -104,7 +104,7 @@ const Login: React.FC = () => {
                   </div>
                   <div className="border rounded-md p-2">
                     <p><strong>Usuario</strong></p>
-                    <p>user@example.com</p>
+                    <p>student@example.com</p>
                     <p>cualquier contraseña</p>
                   </div>
                 </div>
