@@ -17,13 +17,13 @@ import {
 
 const Courses: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [levelFilter, setLevelFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [levelFilter, setLevelFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLevel = levelFilter ? course.level === levelFilter : true;
+    const matchesLevel = levelFilter === 'all' ? true : course.level === levelFilter;
     const matchesStatus = statusFilter === 'published' 
       ? course.isPublished 
       : statusFilter === 'draft' 
@@ -68,7 +68,7 @@ const Courses: React.FC = () => {
                 <SelectValue placeholder="Nivel" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los niveles</SelectItem>
+                <SelectItem value="all">Todos los niveles</SelectItem>
                 <SelectItem value="Básico">Básico</SelectItem>
                 <SelectItem value="Intermedio">Intermedio</SelectItem>
                 <SelectItem value="Avanzado">Avanzado</SelectItem>
@@ -80,7 +80,7 @@ const Courses: React.FC = () => {
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="published">Publicados</SelectItem>
                 <SelectItem value="draft">Borradores</SelectItem>
               </SelectContent>
