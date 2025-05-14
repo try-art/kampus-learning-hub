@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -9,7 +8,7 @@ import { ArrowUpRight, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const UserDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   
   // Filter courses that the user is enrolled in
   const userEnrollments = enrollments.filter(enrollment => enrollment.userId === user?.id);
@@ -27,7 +26,7 @@ const UserDashboard: React.FC = () => {
     <Layout>
       <div className="p-6 md:p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {user?.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {profile?.name || "Usuario"}</h1>
           <p className="text-muted-foreground mt-1">Continúa tu aprendizaje donde lo dejaste</p>
         </div>
 

@@ -56,7 +56,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { user, logout, isAdmin, isInstructor } = useAuth();
+  const { user, profile, logout, isAdmin, isInstructor } = useAuth();
   const location = useLocation();
   
   const adminMenuItems = [
@@ -114,24 +114,24 @@ const Sidebar: React.FC = () => {
         </Button>
       </div>
       
-      {user && (
+      {profile && (
         <div className={cn(
           "flex items-center gap-3 p-4 border-b border-sidebar-border",
           isCollapsed && "justify-center"
         )}>
           <div className="h-8 w-8 rounded-full overflow-hidden">
             <img 
-              src={user.avatar} 
-              alt={user.name} 
+              src={profile.avatar || "https://via.placeholder.com/40"} 
+              alt={profile.name || "User"} 
               className="h-full w-full object-cover"
             />
           </div>
           {!isCollapsed && (
             <div className="animate-fade-in">
-              <p className="font-medium text-sidebar-foreground text-sm">{user.name}</p>
+              <p className="font-medium text-sidebar-foreground text-sm">{profile.name || "User"}</p>
               <p className="text-sidebar-foreground/70 text-xs">
-                {user.role === 'admin' ? 'Administrador' : 
-                 user.role === 'instructor' ? 'Instructor' : 'Estudiante'}
+                {profile.role === 'admin' ? 'Administrador' : 
+                 profile.role === 'instructor' ? 'Instructor' : 'Estudiante'}
               </p>
             </div>
           )}

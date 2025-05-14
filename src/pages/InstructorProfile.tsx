@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +11,7 @@ import UploadMaterialForm from '@/components/UploadMaterialForm';
 import { courses } from '@/data/mockData';
 
 const InstructorProfile = () => {
-  const { user, isInstructor } = useAuth();
+  const { user, profile, isInstructor } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   
   // If not instructor, redirect to home
@@ -21,7 +20,10 @@ const InstructorProfile = () => {
   }
   
   // Filter courses by instructor
-  const instructorCourses = courses.filter(course => course.instructor.id === user.id || course.instructor.name === user.name);
+  const instructorCourses = courses.filter(course => 
+    course.instructor.id === user.id || 
+    (profile?.name && course.instructor.name === profile.name)
+  );
   
   // Calculate some stats
   const totalStudents = instructorCourses.reduce((acc, course) => acc + course.enrolledStudents, 0);

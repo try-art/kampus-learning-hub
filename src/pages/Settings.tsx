@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,14 +8,14 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from '@/contexts/AuthContext';
 
 const Settings = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   
   const [profileForm, setProfileForm] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    bio: user?.bio || '',
-    website: user?.website || '',
-    phone: user?.phone || ''
+    name: profile?.name || '',
+    email: profile?.email || '',
+    bio: profile?.bio || '',
+    website: profile?.website || '',
+    phone: profile?.phone || ''
   });
   
   const [notificationSettings, setNotificationSettings] = useState({
@@ -68,8 +67,8 @@ const Settings = () => {
                   <div className="flex flex-col items-center">
                     <div className="h-24 w-24 rounded-full overflow-hidden mb-2">
                       <img 
-                        src={user?.avatar || "https://images.unsplash.com/photo-1500673922987-e212871fec22"} 
-                        alt={user?.name} 
+                        src={profile?.avatar || "https://images.unsplash.com/photo-1500673922987-e212871fec22"} 
+                        alt={profile?.name || "User"} 
                         className="h-full w-full object-cover"
                       />
                     </div>

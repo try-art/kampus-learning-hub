@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   toast as sonnerToast, 
@@ -155,10 +154,7 @@ function toast({ ...props }: Toast) {
     toast: {
       ...props,
       id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss();
-      },
+      // Remove the "open" property as it doesn't exist in ToasterToast type
     },
   });
 
