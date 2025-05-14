@@ -33,7 +33,6 @@ const Login: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (error: any) {
-      // El error ya se maneja en el contexto de autenticación
       console.error('Error de inicio de sesión:', error);
     } finally {
       setIsLoading(false);
@@ -44,9 +43,28 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // Primero intentamos verificar si el usuario ya existe
+      const { data: existingUser, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', 'admin@campuslms.com')
+        .maybeSingle();
+      
+      if (existingUser) {
+        toast({
+          title: "Este usuario ya existe",
+          description: "Puedes iniciar sesión con el correo admin@campuslms.com y la contraseña admin123",
+        });
+        setEmail('admin@campuslms.com');
+        setPassword('admin123');
+        setIsLoading(false);
+        return;
+      }
+
+      // Si el usuario no existe, lo creamos
       const { data, error } = await supabase.auth.signUp({
-        email: 'deysonlanderos26@gmail.com',
-        password: 'cerrocbqn',
+        email: 'admin@campuslms.com',
+        password: 'admin123',
       });
       
       if (error) {
@@ -57,9 +75,12 @@ const Login: React.FC = () => {
         });
       } else {
         toast({
-          title: "Usuario creado",
-          description: "Se ha enviado un correo de confirmación. Por favor, verifica tu bandeja de entrada.",
+          title: "Usuario administrador creado",
+          description: "Correo: admin@campuslms.com, Contraseña: admin123",
         });
+        
+        setEmail('admin@campuslms.com');
+        setPassword('admin123');
       }
     } catch (error: any) {
       toast({
@@ -132,12 +153,12 @@ const Login: React.FC = () => {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-sm text-muted-foreground text-center w-full">
-                <span>Para iniciar sesión, crea el usuario con:</span>
+                <span>Para iniciar sesión, crea el usuario administrador:</span>
                 <div className="mt-2 grid grid-cols-1 gap-2 text-xs">
                   <div className="border rounded-md p-2">
                     <p><strong>Administrador</strong></p>
-                    <p>deysonlanderos26@gmail.com</p>
-                    <p>contraseña: cerrocbqn</p>
+                    <p>admin@campuslms.com</p>
+                    <p>contraseña: admin123</p>
                     <Button 
                       onClick={handleCreateUser} 
                       variant="outline" 
