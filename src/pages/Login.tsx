@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -61,10 +61,16 @@ const Login: React.FC = () => {
         return;
       }
 
-      // Si el usuario no existe, lo creamos
+      // Si el usuario no existe, creamos la cuenta directamente con signUp
       const { data, error } = await supabase.auth.signUp({
         email: 'admin@campuslms.com',
         password: 'admin123',
+        options: {
+          data: {
+            name: 'Administrador',
+            role: 'admin'
+          }
+        }
       });
       
       if (error) {
@@ -74,6 +80,29 @@ const Login: React.FC = () => {
           variant: "destructive"
         });
       } else {
+        // Creación exitosa, intentamos asegurarnos que el trigger para perfiles funcionó
+        // esperando un momento
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verificamos si se creó el perfil, si no, lo creamos manualmente
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user?.id)
+          .maybeSingle();
+        
+        if (!profile && data.user) {
+          // Si no existe el perfil, lo creamos manualmente
+          await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: 'admin@campuslms.com',
+              name: 'Administrador',
+              role: 'admin'
+            });
+        }
+        
         toast({
           title: "Usuario administrador creado",
           description: "Correo: admin@campuslms.com, Contraseña: admin123",

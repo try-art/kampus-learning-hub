@@ -15,22 +15,9 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, variant, ...props }) {
-        // Filter out sonner-specific props that cause type conflicts
-        const compatibleProps = { ...props };
-        
-        // Remove any known problematic props
-        delete compatibleProps.type;
-        delete compatibleProps.icon;
-        delete compatibleProps.jsx;
-        delete compatibleProps.promise;
-        delete compatibleProps.cancel;
-        delete compatibleProps.onDismiss;
-        delete compatibleProps.onAutoClose;
-        delete compatibleProps.position;
-        delete compatibleProps.unstyled;
-        delete compatibleProps.style;
-        delete compatibleProps.closeButton;
-        delete compatibleProps.invert;
+        // Remove any props that would cause type conflicts with shadcn Toast
+        const { type, icon, jsx, promise, cancel, onDismiss, onAutoClose, position, 
+                unstyled, style, closeButton, invert, ...compatibleProps } = props;
         
         // Convert variant to the expected type for shadcn Toast
         const toastVariant = variant === "destructive" ? "destructive" : "default";
