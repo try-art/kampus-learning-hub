@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   toast as sonnerToast, 
@@ -154,11 +155,10 @@ function toast({ ...props }: Toast) {
     toast: {
       ...props,
       id,
-      // Remove the "open" property as it doesn't exist in ToasterToast type
     },
   });
 
-  // Usar Sonner toast
+  // Use Sonner toast
   const variant = props.variant || "default";
   const sonnerOpts: ExternalToast = { id };
   

@@ -14,12 +14,17 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, type, ...props }) {
         // Convert variant to the expected type
         const toastVariant = variant === "destructive" ? "destructive" : "default";
         
+        // Remove any problematic props that might cause type errors
+        const sanitizedProps = { ...props };
+        delete sanitizedProps.icon;
+        delete sanitizedProps.jsx;
+        
         return (
-          <Toast key={id} variant={toastVariant} {...props}>
+          <Toast key={id} variant={toastVariant} {...sanitizedProps}>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
