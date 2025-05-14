@@ -14,17 +14,29 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, variant, type, ...props }) {
-        // Convert variant to the expected type
+      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        // Filter out sonner-specific props that cause type conflicts
+        const compatibleProps = { ...props };
+        
+        // Remove any known problematic props
+        delete compatibleProps.type;
+        delete compatibleProps.icon;
+        delete compatibleProps.jsx;
+        delete compatibleProps.promise;
+        delete compatibleProps.cancel;
+        delete compatibleProps.onDismiss;
+        delete compatibleProps.onAutoClose;
+        delete compatibleProps.position;
+        delete compatibleProps.unstyled;
+        delete compatibleProps.style;
+        delete compatibleProps.closeButton;
+        delete compatibleProps.invert;
+        
+        // Convert variant to the expected type for shadcn Toast
         const toastVariant = variant === "destructive" ? "destructive" : "default";
         
-        // Remove any problematic props that might cause type errors
-        const sanitizedProps = { ...props };
-        delete sanitizedProps.icon;
-        delete sanitizedProps.jsx;
-        
         return (
-          <Toast key={id} variant={toastVariant} {...sanitizedProps}>
+          <Toast key={id} variant={toastVariant} {...compatibleProps}>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
