@@ -26,10 +26,13 @@ function toast({ ...props }: Toast) {
     });
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
 
+  // Create a sanitized version of props without any problematic types
+  const safeProps = { ...props };
+  
   dispatch({
     type: "ADD_TOAST",
     toast: {
-      ...props,
+      ...safeProps,
       id,
     },
   });
