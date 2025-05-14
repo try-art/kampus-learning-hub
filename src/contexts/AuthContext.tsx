@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { users as mockUsers } from '@/data/mockData';
 
 // Define user types
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'instructor' | 'user';
 
 export interface User {
   id: string;
@@ -23,6 +23,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAdmin: () => boolean;
+  isInstructor: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,6 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = () => {
     return user?.role === 'admin';
   };
+  
+  const isInstructor = () => {
+    return user?.role === 'instructor';
+  };
 
   return (
     <AuthContext.Provider 
@@ -78,7 +83,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading, 
         login, 
         logout,
-        isAdmin
+        isAdmin,
+        isInstructor
       }}
     >
       {children}

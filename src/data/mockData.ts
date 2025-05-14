@@ -1,9 +1,9 @@
-
 export interface Course {
   id: string;
   title: string;
   description: string;
   instructor: {
+    id?: string;
     name: string;
     avatar?: string;
     title?: string;
@@ -65,6 +65,7 @@ export const courses: Course[] = [
     title: 'Introducción a la Programación Web',
     description: 'Aprende los fundamentos de HTML, CSS y JavaScript para crear sitios web interactivos.',
     instructor: {
+      id: 'instructor-1',  // Added instructor ID
       name: 'María González',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop',
       title: 'Desarrolladora Senior',
@@ -271,6 +272,7 @@ export const enrollments: Enrollment[] = [
   }
 ];
 
+// Update users with an instructor role
 export const users: User[] = [
   {
     id: '1',
@@ -291,6 +293,16 @@ export const users: User[] = [
     bio: 'Enthusiastic learner',
     website: 'https://student.example.com',
     phone: '+0987654321'
+  },
+  {
+    id: '3',
+    name: 'María González',
+    email: 'instructor@example.com',
+    role: 'instructor',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop',
+    bio: 'Desarrolladora web con más de 10 años de experiencia en el sector',
+    website: 'https://instructor.example.com',
+    phone: '+1122334455'
   }
 ];
 

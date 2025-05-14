@@ -12,7 +12,8 @@ import {
   Menu, 
   User,
   FileText,
-  Calendar
+  Calendar,
+  Edit
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -55,12 +56,20 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isInstructor } = useAuth();
   const location = useLocation();
   
   const adminMenuItems = [
     { icon: <Book size={20} />, label: 'Cursos', to: '/courses' },
     { icon: <Users size={20} />, label: 'Usuarios', to: '/users' },
+    { icon: <FileText size={20} />, label: 'Materiales', to: '/materials' },
+    { icon: <Calendar size={20} />, label: 'Calendario', to: '/calendar' },
+    { icon: <Settings size={20} />, label: 'Configuración', to: '/settings' },
+  ];
+  
+  const instructorMenuItems = [
+    { icon: <Edit size={20} />, label: 'Dashboard', to: '/instructor-profile' },
+    { icon: <Book size={20} />, label: 'Cursos', to: '/courses' },
     { icon: <FileText size={20} />, label: 'Materiales', to: '/materials' },
     { icon: <Calendar size={20} />, label: 'Calendario', to: '/calendar' },
     { icon: <Settings size={20} />, label: 'Configuración', to: '/settings' },
@@ -73,7 +82,14 @@ const Sidebar: React.FC = () => {
     { icon: <Settings size={20} />, label: 'Configuración', to: '/settings' },
   ];
   
-  const menuItems = isAdmin() ? adminMenuItems : userMenuItems;
+  let menuItems;
+  if (isAdmin()) {
+    menuItems = adminMenuItems;
+  } else if (isInstructor()) {
+    menuItems = instructorMenuItems;
+  } else {
+    menuItems = userMenuItems;
+  }
 
   return (
     <aside 
@@ -113,7 +129,10 @@ const Sidebar: React.FC = () => {
           {!isCollapsed && (
             <div className="animate-fade-in">
               <p className="font-medium text-sidebar-foreground text-sm">{user.name}</p>
-              <p className="text-sidebar-foreground/70 text-xs">{user.role === 'admin' ? 'Administrador' : 'Estudiante'}</p>
+              <p className="text-sidebar-foreground/70 text-xs">
+                {user.role === 'admin' ? 'Administrador' : 
+                 user.role === 'instructor' ? 'Instructor' : 'Estudiante'}
+              </p>
             </div>
           )}
         </div>

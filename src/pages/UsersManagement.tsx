@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -20,6 +19,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import CreateUserForm from '@/components/CreateUserForm';
 
 // Mock users data
 const users = [
@@ -80,6 +88,7 @@ const UsersManagement = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [view, setView] = useState<'table' | 'grid'>('table');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -112,10 +121,23 @@ const UsersManagement = () => {
             <p className="text-muted-foreground mt-1">Administra los usuarios de la plataforma</p>
           </div>
           <div className="mt-4 sm:mt-0">
-            <Button className="inline-flex items-center justify-center">
-              <UserPlus size={16} className="mr-2" />
-              Invitar usuario
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="inline-flex items-center justify-center">
+                  <UserPlus size={16} className="mr-2" />
+                  Crear usuario
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Crear nuevo usuario</DialogTitle>
+                  <DialogDescription>
+                    Complete los datos para crear un nuevo usuario en la plataforma
+                  </DialogDescription>
+                </DialogHeader>
+                <CreateUserForm onSuccess={() => setIsDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         

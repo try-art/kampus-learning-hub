@@ -20,18 +20,27 @@ import Calendar from "./pages/Calendar";
 import MyCalendar from "./pages/MyCalendar";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import InstructorProfile from "./pages/InstructorProfile"; // Add InstructorProfile import
 
 const queryClient = new QueryClient();
 
 // Root component to handle auth-based redirection
 const Root = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isInstructor } = useAuth();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
   
-  return isAdmin() ? <AdminDashboard /> : <UserDashboard />;
+  if (isAdmin()) {
+    return <AdminDashboard />;
+  }
+  
+  if (isInstructor()) {
+    return <Navigate to="/instructor-profile" />;
+  }
+  
+  return <UserDashboard />;
 };
 
 const App = () => (
@@ -53,6 +62,9 @@ const App = () => (
             <Route path="/materials" element={<Materials />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/settings" element={<Settings />} />
+            
+            {/* Instructor routes */}
+            <Route path="/instructor-profile" element={<InstructorProfile />} />
             
             {/* User routes */}
             <Route path="/my-courses" element={<MyCourses />} />
