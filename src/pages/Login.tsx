@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,14 +8,22 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirigir si ya está autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +32,39 @@ const Login: React.FC = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
+      // El error ya se maneja en el contexto de autenticación
+      console.error('Error de inicio de sesión:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: 'deysonlanderos26@gmail.com',
+        password: 'cerrocbqn',
+      });
+      
+      if (error) {
+        toast({
+          title: "Error al crear usuario",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Usuario creado",
+          description: "Se ha enviado un correo de confirmación. Por favor, verifica tu bandeja de entrada.",
+        });
+      }
+    } catch (error: any) {
       toast({
-        title: "Error de inicio de sesión",
-        description: (error as Error).message || "Ocurrió un error al iniciar sesión",
+        title: "Error al crear usuario",
+        description: error.message || "Ocurrió un error al crear el usuario",
         variant: "destructive"
       });
     } finally {
@@ -95,17 +132,21 @@ const Login: React.FC = () => {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-sm text-muted-foreground text-center w-full">
-                <span>Para probar, usa:</span>
-                <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                <span>Para iniciar sesión, crea el usuario con:</span>
+                <div className="mt-2 grid grid-cols-1 gap-2 text-xs">
                   <div className="border rounded-md p-2">
-                    <p><strong>Admin</strong></p>
-                    <p>admin@example.com</p>
-                    <p>cualquier contraseña</p>
-                  </div>
-                  <div className="border rounded-md p-2">
-                    <p><strong>Usuario</strong></p>
-                    <p>student@example.com</p>
-                    <p>cualquier contraseña</p>
+                    <p><strong>Administrador</strong></p>
+                    <p>deysonlanderos26@gmail.com</p>
+                    <p>contraseña: cerrocbqn</p>
+                    <Button 
+                      onClick={handleCreateUser} 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2 w-full"
+                      disabled={isLoading}
+                    >
+                      Crear usuario administrador
+                    </Button>
                   </div>
                 </div>
               </div>

@@ -1,84 +1,205 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { users as mockUsers } from '@/data/mockData';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define user types
 export type UserRole = 'admin' | 'instructor' | 'user';
 
-export interface User {
+export interface UserProfile {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   role: UserRole;
-  avatar?: string;
-  bio?: string;
-  website?: string;
-  phone?: string;
+  avatar: string | null;
+  bio: string | null;
+  website: string | null;
+  phone: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
+  profile: UserProfile | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAdmin: () => boolean;
   isInstructor: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Using mock users from mockData instead of duplicating them
+const cleanupAuthState = () => {
+  // Remove standard auth tokens
+  localStorage.removeItem('supabase.auth.token');
+  // Remove all Supabase auth keys from localStorage
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+  // Remove from sessionStorage if in use
+  Object.keys(sessionStorage || {}).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      sessionStorage.removeItem(key);
+    }
+  });
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem('lmsUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+  // Función para cargar el perfil del usuario
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error cargando perfil:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data as UserProfile);
+      }
+    } catch (error) {
+      console.error('Error en loadUserProfile:', error);
     }
-    setIsLoading(false);
+  };
+
+  // Configurar escucha de cambios de autenticación
+  useEffect(() => {
+    // Configuramos primero el listener de cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event);
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        // Si tenemos un usuario, cargamos su perfil
+        if (session?.user) {
+          setTimeout(() => {
+            loadUserProfile(session.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    // Verificamos si hay una sesión existente
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        loadUserProfile(session.user.id);
+      }
+      
+      setIsLoading(false);
+    });
+
+    // Limpiar la suscripción al desmontar
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Find user by email (in a real app, you'd verify password too)
-    const foundUser = mockUsers.find(u => u.email === email);
-    
-    if (!foundUser) {
+    try {
+      // Limpiamos cualquier estado de autenticación existente
+      cleanupAuthState();
+      
+      // Intentamos cerrar sesión global por si acaso
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continuamos incluso si esto falla
+      }
+      
+      // Iniciamos sesión
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      // Si tenemos usuario y sesión, configuramos el estado
+      if (data.user && data.session) {
+        setUser(data.user);
+        setSession(data.session);
+        await loadUserProfile(data.user.id);
+        toast({
+          title: "Inicio de sesión exitoso",
+          description: `Bienvenido de nuevo, ${data.user.email}`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error de inicio de sesión",
+        description: error.message || "Ocurrió un error al iniciar sesión",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
       setIsLoading(false);
-      throw new Error('Usuario o contraseña incorrectos');
     }
-    
-    // Save user to state and localStorage
-    setUser(foundUser);
-    localStorage.setItem('lmsUser', JSON.stringify(foundUser));
-    setIsLoading(false);
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('lmsUser');
+  const logout = async (): Promise<void> => {
+    try {
+      // Limpiamos el estado de autenticación
+      cleanupAuthState();
+      
+      // Intentamos cerrar sesión global
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Limpiamos el estado local
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión correctamente"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error al cerrar sesión",
+        description: error.message || "Ocurrió un error al cerrar sesión",
+        variant: "destructive"
+      });
+    }
   };
 
   const isAdmin = () => {
-    return user?.role === 'admin';
+    return profile?.role === 'admin';
   };
   
   const isInstructor = () => {
-    return user?.role === 'instructor';
+    return profile?.role === 'instructor';
   };
 
   return (
     <AuthContext.Provider 
       value={{ 
         user, 
+        profile,
+        session,
         isAuthenticated: !!user, 
         isLoading, 
         login, 

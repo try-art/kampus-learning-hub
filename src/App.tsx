@@ -26,7 +26,15 @@ const queryClient = new QueryClient();
 
 // Root component to handle auth-based redirection
 const Root = () => {
-  const { isAuthenticated, isAdmin, isInstructor } = useAuth();
+  const { isAuthenticated, isAdmin, isInstructor, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
