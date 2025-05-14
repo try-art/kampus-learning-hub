@@ -1,3 +1,4 @@
+
 export interface Course {
   id: string;
   title: string;
@@ -52,12 +53,29 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'instructor';  // Updated to include 'instructor'
   avatar?: string;
   bio?: string;
   website?: string;
   phone?: string;
 }
+
+// Create a new interface for materials
+export interface Material {
+  id: string;
+  title: string;
+  description: string;
+  type: 'video' | 'document' | 'quiz';
+  file: string;
+  courseId: string;
+  moduleId: string;
+  lessonId?: string;
+  uploadedBy: string; // User ID of the instructor
+  uploadedAt: string;
+}
+
+// Initialize an empty array for materials
+export const materials: Material[] = [];
 
 export const courses: Course[] = [
   {

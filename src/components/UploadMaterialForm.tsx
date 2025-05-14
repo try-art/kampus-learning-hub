@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { FileUpload, Upload } from 'lucide-react';
+import { Upload, FileUp } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -267,7 +266,7 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSuccess, inst
                     }}
                   />
                   <Label htmlFor="material-file" className="cursor-pointer flex flex-col items-center justify-center">
-                    <FileUpload className="w-10 h-10 text-gray-400 mb-2" />
+                    <FileUp className="w-10 h-10 text-gray-400 mb-2" />
                     <span className="text-sm font-medium mb-1">Arrastra tu archivo aquí o haz clic para seleccionar</span>
                     <span className="text-xs text-muted-foreground">
                       {field.value ? field.value : "PDF, DOC, DOCX, PPT, MP4, etc."}

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { BarChart, FileText, Upload, Users } from 'lucide-react';
 import UploadMaterialForm from '@/components/UploadMaterialForm';
-import { courses, materials } from '@/data/mockData';
+import { courses } from '@/data/mockData';
 
 const InstructorProfile = () => {
   const { user, isInstructor } = useAuth();
